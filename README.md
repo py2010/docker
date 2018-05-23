@@ -13,9 +13,9 @@
 
 * 环境：
         centos7 python2.7,
-        docker版本最好是大于1.12或docker CE，
-        要求能支持swarm的docker版本，只用于开启2375监听端口，使能通过网络来控制docker。
-        由于swarm还比较初始，swarm功能不使用，比如docker service等
+        客户端docker版本最好是大于1.12或docker CE，我目前测试宿主机都是使用docker CE，
+        要求能支持swarm的docker版本，只用于开启2375监听端口，使能通过网络来控制docker。
+        由于swarm还比较初始，swarm功能不使用，比如docker service等，只用来开端口。
 
 
 * 开启docker端口:
