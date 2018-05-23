@@ -1,0 +1,124 @@
+#!/bin/bash
+
+
+# path=`dirname "$0"` #脚本目录c
+path="$( cd "$( dirname "$0"  )" && pwd  )" #脚本目录c
+
+base=`dirname "$path"` #sdj路径
+
+cd $base #sdj
+
+
+case $1 in
+        reset|log|push) git $*;exit ;;
+        # *) echo 'else';;
+esac
+
+# args="reset log push"
+# if [[ " $args " =~ " $1 " ]];then
+#   git $*
+#   exit
+# fi
+
+
+arg1=$1
+
+
+if [ -z "$arg1" ]; then
+arg1='自动提交'
+
+
+elif [ "$arg1" == "cmdb" ];then
+
+/usr/bin/rsync -tl -rv * --exclude-from=rsync.log app@10.2.21.34:/data/app/sdj
+
+    if [ "$2" == "r" ];then
+        #同步后需重启
+        /usr/bin/ssh app@10.2.21.34 'cd /data/app/sdj/ && c/d restart'
+    fi
+
+exit
+
+elif [ "$arg1" == "cmdb2" ];then
+
+/usr/bin/rsync -tl -rv * --exclude-from=rsync.log root@10.2.21.9:/home/sdj
+
+    if [ "$2" == "r" ];then
+        #同步后需重启
+        /usr/bin/ssh root@10.2.21.9 'cd /home/sdj/ && c/d stop && chown -R app.app . && su app c/d start'
+    fi
+
+
+exit
+elif [ "$arg1" == "sz" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@112.74.37.53:/home/www/web'
+exit
+
+elif [ "$arg1" == "hk" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@47.91.132.53:/home/www/web'
+exit
+
+elif [ "$arg1" == "xjp" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@47.88.188.59:/home/www/web'
+exit
+
+
+elif [ "$arg1" == "hz" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@39.108.81.244:/home/www/web'
+exit
+
+
+elif [ "$arg1" == "mg" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@47.52.106.74:/home/www/web'
+exit
+
+elif [ "$arg1" == "pk_1" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@35.185.179.61:/home/www/web'
+exit
+
+elif [ "$arg1" == "pk_2" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@35.187.232.96:/home/www/web'
+
+
+elif [ "$arg1" == "101" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@103.84.45.101:/home/www/web'
+exit
+
+elif [ "$arg1" == "202" ];then
+
+/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@43.254.151.202:/home/www/web'
+
+
+exit
+
+
+
+
+#elif [ "$arg1" == "wh" ];then
+
+#/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' root@116.211.144.112:/home/www/web'
+#exit
+
+
+#elif [ "$arg1" == "local" ];then
+
+#/usr/bin/ssh root@120.24.55.48 'cd /data/projects/git_src/web && /usr/bin/git pull && /usr/bin/rsync -t -rv * --exclude=.git  --exclude '*.txt' --exclude '*.log'  --exclude 'nohup.out' --exclude '*.sh' /home/www/web'
+#exit
+
+
+
+
+fi
+
+/usr/bin/git add .
+/usr/bin/git commit -a -m $arg1
+#git push
+echo `date`

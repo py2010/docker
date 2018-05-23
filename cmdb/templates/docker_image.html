@@ -1,0 +1,169 @@
+{% extends "_base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block  title %}镜像管理{% endblock %}
+
+{% block left %}
+    {% include "_left.html" with cmdb_docker_image_active="active" %}
+{% endblock left %}
+
+
+{% block page-content %}
+
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:dockerlist' %}">Docker管理</a>
+                </li>
+                <li class="active">
+                    <strong>镜像管理</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+
+
+    <div class="row wrapper wrapper-content animated fadeInRight">
+        <div class="row col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <div class="col-md-8 form-inline">
+                        <label class="text-success">宿主机:</label>
+                        
+                        <select id="docker" class="form-control">
+                            {% if not client %}<option value="">------</option>{% endif %}
+                            {% for row in dockers %}
+                            <option value="{{ row.id }}" {% if row == client.docker %}selected{% endif %}>{{ row }}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+
+
+                </div>
+                <div class="ibox-content">
+                    {% if error %}
+                    {{ error }}
+                    {% elif client %}
+                    <table class="table table-striped table-bordered table-hover dataTables-example" id="tb_images">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th class="col-xs-1">版本</th>
+                                <th class="col-lg-1">创建</th>
+                                <th class="col-xs-1">大小</th>
+                                <th class="col-xs-2">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        
+                            {% for i in imgs %}
+                            <tr>
+                                <td>{{ i.name }}</td>
+                                <td>{{ i.ver }}</td>
+                                <td>{{ i.time }}</td>
+                                <td>{{ i.size|filesizeformat }}</td>
+
+                                <td id="{{ i.id }}">
+                                    <button type="button" class="btn btn-primary btn-xs">详情</button>
+                                    <button type="button" class="btn btn-success btn-xs">历史</button>
+                                    <button type="button" class="btn btn-danger btn-xs">删除</button>
+
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+
+                        </tbody>
+
+                    </table>
+                    {% else %}
+                    请选择宿主机/物理机
+                    {% endif %}
+
+                    
+                    <div class="panel panel-success" style="display:none" id="server_div">
+                        <div class="panel-heading">
+                            <h5>操作返回</h5>
+                        </div>
+                        <div class="panel-body">
+                        <span id="server"></span>
+                        <textarea id="server_msg" readonly style="width:100%;" rows="5">{{ text }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
+
+
+{% block footer-js %}
+    <script>
+        $(document).ready(function(){
+
+            $('#docker').change(function() {
+                if (this.value) {
+                    console.log(this.value);
+                    window.location.href="{% url 'cmdb:dockerimage' %}"+this.value+"/"
+                }
+            });
+
+            {% if client %}
+            // $( ".btn-danger.btn-xs" ).click()
+            $('#tb_images').on('click', 'button', function (e) {
+                // console.log($(this));
+                var url="{% url 'cmdb:docker_image_info' client.docker.id %}?img="+this.parentElement.id;
+                var textarea_height="400px";
+                if (this.className=="btn btn-danger btn-xs") {
+                    if(! window.confirm('确认删除镜像？\n依赖当前镜像运行的容器也将一起删除！')){
+                        return false;
+                    }
+                    var url="{% url 'cmdb:docker_image_rm' client.docker.id %}?img="+this.parentElement.id;
+                    textarea_height="100px";
+                } else if (this.className=="btn btn-primary btn-xs") {
+                    url=url+"&info=attrs";
+                } else if (this.className=="btn btn-success btn-xs") {
+                    url=url+"&info=history";
+                }
+                $("#server_div").show();
+                $("#server").text(this.parentElement.parentElement.children[0].textContent+" "+this.textContent);
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    timeout: 10000,
+                    error: function(){
+                        $("#server_msg").html('<option value="">网站连接失败！请联系CMDB管理员</option>');
+                    },
+                    success: function(msg_html){
+                        // json格式化
+                        // console.log(msg_html);
+                        var result = JSON.stringify(JSON.parse(msg_html), null, 4);
+                        $('#server_msg').val(result);
+                        // console.log(txt);
+                        $('#server_msg')[0].style.minHeight= textarea_height;
+                    }
+                });
+            });
+            {% endif %}
+
+        });
+
+
+    </script>
+{% endblock footer-js %}
+
+

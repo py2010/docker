@@ -1,0 +1,22 @@
+
+
+
+vi /etc/sysconfig/docker
+
+DOCKER_OPTS="-H 0.0.0.0:2375 -H unix:///var/run/docker.sock"
+
+或
+vim /usr/lib/systemd/system/docker.service
+
+[Service]
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+
+或SSL
+
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock --tlsverify --tlscacert=/etc/docker/ca.pem --tlscert=/etc/docker/cert.pem --tlskey=/etc/docker/key.pem
+
+
+#重启服务端生效
+systemctl restart docker
+
+

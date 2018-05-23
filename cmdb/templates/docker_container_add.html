@@ -1,0 +1,242 @@
+{% extends "_base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block  title %}容器管理{% endblock %}
+
+{% block left %}
+    {% include "_left.html" with cmdb_docker_container_active="active" %}
+{% endblock left %}
+
+
+{% block page-content %}
+
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>资产管理</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="/">主页</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:dockerlist' %}">Docker管理</a>
+                </li>
+                <li>
+                    <a href="{% url 'cmdb:dockercontainer' client.docker.id %}">容器管理 - {{ client.docker }}</a>
+                </li>
+                <li class="active">
+                    <strong>新建容器</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-2">
+
+        </div>
+    </div>
+
+
+    <div class="row wrapper wrapper-content animated fadeInRight">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>创建容器</h5>
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" class="form-horizontal" action=""
+                        method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger" style="margin: 20px auto 0px">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- <div class="form-group">
+                            <label class="col-md-2 control-label" for="id_host">宿主机</label>
+                            <div class="col-md-9">
+                                <span class="form-control">{{ client.docker }}</span>
+                            </div>
+                        </div> -->
+
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">容器名称</label>
+                            <div class="col-md-9">
+                                <input type="text" name="name" value="{{ form.data.name }}" required="" maxlength="100" placeholder="容器名称" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">使用镜像</label>
+                            <div class="col-md-9">
+                                <select name="image" required="" class="form-control">
+                                    {% for row in imgs %}
+                                    <option value="{{ row.name }}" {% if row.name == form.data.image %}selected{% endif %}>{{ row.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">使用网络</label>
+                            <div class="col-md-9">
+                                <select name="network" required="" class="form-control">
+                                    {% for row in nets %}
+                                    <option value="{{ row.name }}" {% if row.name == form.data.network %}selected{% endif %}>{{ row.type }} -- {{ row.name }} ({{ row.subnet }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">容器IP</label>
+                            <div class="col-md-9">
+                                <input type="text" name="ip" value="{{ form.data.ip }}" maxlength="100" placeholder="未填写时，将自动根据所选网络进行分配" class="form-control">
+                                <div class="help-block">若未填IP，可能导致系统自动设置的IP与其它宿主机的容器IP冲突！</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">挂载目录</label>
+                            <div class="col-md-9">
+                                <input type="text" name="volumes" value="{{ form.data.volumes }}" maxlength="300" placeholder="/var/www:/mnt/vol1:ro, /home/app/:/mnt/vol2" class="form-control">
+                                <div class="help-block">比如只读> 宿目录:容器路径:ro，多个挂载使用逗号间隔</div>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label">启动命令</label>
+                            <div class="col-md-9">
+                                <input type="text" name="command" value="{{ form.data.command }}" placeholder="自定义运行命令" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-2 control-label" for="id_state">&nbsp;</label>
+                            <div class="col-md-9">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="start" checked id="id_start">创建后启动容器</label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="hr-line-dashed"></div>
+
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-3">
+
+                                <button class="btn btn-primary" type="submit">提交</button>
+                                <button class="btn btn-white" type="reset">重置</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
+
+
+{% block footer-js %}
+    <script>
+        function conn_docker(url, textarea_height){
+            $.ajax({
+                url: url,
+                type: 'GET',
+                timeout: 20000,
+                error: function(){
+                    $("#server_msg").html('<option value="">网站连接失败！请联系CMDB管理员</option>');
+                },
+                success: function(msg_html){
+                    // json格式化
+                    // console.log(msg_html);
+                    try{
+                        var msg_html = JSON.stringify(JSON.parse(msg_html), null, 4);
+                    }finally{
+                        $('#server_msg').val(msg_html);
+                        // console.log(txt);
+                        $('#server_msg')[0].style.minHeight= textarea_height;
+                    } 
+                }
+            });
+        };
+
+        $(document).ready(function(){
+
+            $('#docker').change(function() {
+                if (this.value) {
+                    console.log(this.value);
+                    window.location.href="{% url 'cmdb:dockercontainer' %}"+this.value+"/"
+                }
+            });
+
+            {% if client %}
+
+            // $( ".btn-danger.btn-xs" ).click()
+            $('#tb').on('click', 'button', function (e) {
+                console.log($(this));
+                var url="{% url 'cmdb:docker_container_info' client.docker.id %}?id="+this.parentElement.parentElement.children[0].children[0].value;
+                var textarea_height="400px";
+                if (this.className=="btn btn-danger btn-xs") {
+                    if(! window.confirm('确认删除容器？')){
+                        return false;
+                    }
+                    var url="{% url 'cmdb:docker_container_rm' client.docker.id %}?id="+this.parentElement.parentElement.children[0].children[0].value;
+                    textarea_height="100px";
+                } else if (this.className=="btn btn-primary btn-xs") {
+                    url=url+"&info=attrs";
+                } else if (this.className=="btn btn-success btn-xs") {
+                    url=url+"&info=logs";
+                } else if (this.className=="btn btn-info btn-xs") {
+                    url=url+"&info=start";
+                    textarea_height="100px";
+                } else if (this.className=="btn btn-warning btn-xs") {
+                    url=url+"&info=stop";
+                    textarea_height="100px";
+                }
+
+                $("#server_div").show();
+                $("#server").text(this.parentElement.parentElement.children[1].textContent+" "+this.textContent);
+                conn_docker(url, textarea_height);
+
+            });
+
+
+            $("#delall").click(function(){
+                var container_ids = '';
+                var cs=document.getElementsByName('id');
+                for (i=0; i < cs.length; i++) {
+                    if (cs[i].checked) {
+                        container_ids = container_ids+cs[i].value+',';
+                        // console.log(cs[i].value);
+                    }
+                }
+                if (! container_ids) {return false;}
+                if(! window.confirm('确认批量删除容器？')){
+                    return false;
+                }
+                var url="{% url 'cmdb:docker_container_rm' client.docker.id %}?id="+container_ids;
+                console.log(container_ids);
+                $("#server_div").show();
+                $("#server").text("批量删除容器");
+                conn_docker(url, "100px");
+            });
+            {% endif %}
+
+        });
+
+
+    </script>
+{% endblock footer-js %}
+
+
