@@ -1,6 +1,15 @@
 # Django Docker管理
 通过网络管理多台物理宿主机，在物理机上管理docker容器。
+因为docker 2375端口默认无安全验证，可开启SSL证书，客户端需用私钥访问docker 2375服务端。
 
+
+* 特色
+        
+        1. 通过网络管理docker，这样可同时管理多台物理宿主机。目前看市面上这些功能大多都是单机版；
+        2. docker服务端配置好后，2375端口透明支持SSL证书验证，
+        物理宿主机添加管理时直接使用IP，无需设置hosts泛域名解析等任何额外设置。
+        
+        
 * 说明
         
         本项目只是一些文件合并在一起，因为是从我的CMDB大项目中拆出来的，拆得太麻烦太累懒得详细弄，
@@ -20,10 +29,11 @@
         centos7 python2.7,
         客户端docker版本最好是大于1.12或docker CE，我目前测试宿主机都是使用docker CE，
         要求能支持swarm的docker版本，只用于开启2375监听端口，使能通过网络来控制docker宿主。
-        由于swarm还比较初始，swarm功能不使用，比如docker service等，几台物理机都开个2375端口。
+        由于swarm还比较初始，swarm功能不使用比如docker service等，实际并不使用swarm和集群，
+        几台物理机都只开个2375端口，使能通过网络在各物理机上创建管理容器。
 
 
-* 开启docker端口:
+* 宿主机开启docker端口:
         
         vi /etc/sysconfig/docker
         DOCKER_OPTS="-H 0.0.0.0:2375 -H unix:///var/run/docker.sock"
