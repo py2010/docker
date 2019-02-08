@@ -1,3 +1,6 @@
+
+# 本项目已停止更新，和webssh合并到另一项目中 [py2010/cmdb](https://github.com/py2010/cmdb)
+
 # Django Docker管理
 通过网络管理多台物理宿主机，在物理机上管理docker容器。
 因为docker 2375端口默认无安全验证，可开启SSL证书，客户端需用私钥访问docker 2375服务端。
